@@ -44,7 +44,6 @@ func (connector *InfluxConnector) AddPings(pings []utils_json.Ping) {
 		}
 
 		fields := map[string]interface{}{
-			"origin":              p.Origin,
 			"name_lookup_time_ms": p.NameLookupTimeMs,
 			"connect_time_ms":     p.ConnectTimeMs,
 			"transfer_time_ms":    p.TransferTimeMs,
@@ -127,7 +126,7 @@ func (connector *InfluxConnector) getAverages(
 
 // Finds the oldest timestamp for the specified origin
 func (connector *InfluxConnector) findOldestTimestamp(origin string) time.Time {
-	query := fmt.Sprintf("SELECT origin FROM ping WHERE origin = '%s'",
+	query := fmt.Sprintf("SELECT status FROM ping WHERE origin = '%s'",
 		origin,
 	)
 
