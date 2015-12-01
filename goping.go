@@ -8,9 +8,11 @@ import (
 	"github.com/gorilla/mux"
 )
 
+var tsdb goping.TSDBConnector
+
 func main() {
 	// Instantiates and configures the connection to the TSDB
-	_ = goping.NewInfluxConnector()
+	tsdb = goping.NewInfluxConnector()
 
 	// Instantiates and configures the HTTP router
 	router := mux.NewRouter().StrictSlash(true)
@@ -29,7 +31,7 @@ func PingAdd(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 
-	_ = ping
+	tsdb.AddPing(ping)
 }
 
 // Handler of /api/1/pings/{origin}/hours GET requests to retrieve the everage
