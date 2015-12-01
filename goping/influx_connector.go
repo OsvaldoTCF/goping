@@ -69,7 +69,11 @@ func (connector *InfluxConnector) AddPings(pings []Ping) {
 	}
 }
 
-func (connector *InfluxConnector) GetAveragePerHour(start time.Time, end time.Time) []int {
+func (connector *InfluxConnector) GetAveragePerHour(
+	origin string,
+	start time.Time,
+	end time.Time) []int {
+
 	return make([]int, 1)
 }
 
