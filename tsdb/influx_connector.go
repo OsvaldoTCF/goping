@@ -50,7 +50,7 @@ func (connector *InfluxConnector) AddPings(pings []utils_json.Ping) {
 			"status":              p.Status,
 		}
 
-		timestamp, err := time.Parse("2006-02-01 15:04:05 MST", p.CreatedAt)
+		timestamp, err := time.Parse("2006-01-02 15:04:05 MST", p.CreatedAt)
 		if err != nil {
 			log.Println(err)
 		}
