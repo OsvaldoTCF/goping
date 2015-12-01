@@ -17,15 +17,15 @@ type Ping struct {
 	Status           int    `json:"status"`
 }
 
-// Instantiates a new Ping struct according to the JSON data found in the body
-// of the `http.Request` object.
-func NewPing(r *http.Request) (*Ping, error) {
-	var ping Ping
-	err := json.NewDecoder(r.Body).Decode(&ping)
+// Decodes the Ping array from the JSON data found in the body of the
+// `http.Request` object.
+func ReadPings(r *http.Request) ([]Ping, error) {
+	var pings []Ping
+	err := json.NewDecoder(r.Body).Decode(&pings)
 
 	if err != nil {
 		return nil, errors.New("Ill formed JSON ping.")
 	}
 
-	return &ping, nil
+	return pings, nil
 }

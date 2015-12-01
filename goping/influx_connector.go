@@ -29,39 +29,42 @@ func NewInfluxConnector() *InfluxConnector {
 	}
 }
 
-func (connector *InfluxConnector) AddPing(p *Ping) {
+func (connector *InfluxConnector) AddPings(pings []Ping) {
 	bp, _ := client.NewBatchPoints(client.BatchPointsConfig{
 		Database:  connector.database,
 		Precision: "s",
 	})
 
-	tags := map[string]string{
-		"origin": p.Origin,
+	for _, p := range pings {
+		tags := map[string]string{
+			"origin": p.Origin,
+		}
+
+		fields := map[string]interface{}{
+			"origin":              p.Origin,
+			"name_lookup_time_ms": p.NameLookupTimeMs,
+			"connect_time_ms":     p.ConnectTimeMs,
+			"transfer_time_ms":    p.TransferTimeMs,
+			"total_time_ms":       p.TotalTimeMs,
+			"status":              p.Status,
+		}
+
+		timestamp, err := time.Parse("2006-02-01 15:04:05 MST", p.CreatedAt)
+		if err != nil {
+			log.Println(err)
+		}
+
+		point, err := client.NewPoint(
+			"ping",
+			tags,
+			fields,
+			timestamp,
+		)
+
+		bp.AddPoint(point)
 	}
 
-	fields := map[string]interface{}{
-		"origin":              p.Origin,
-		"name_lookup_time_ms": p.NameLookupTimeMs,
-		"connect_time_ms":     p.ConnectTimeMs,
-		"transfer_time_ms":    p.TransferTimeMs,
-		"total_time_ms":       p.TotalTimeMs,
-		"status":              p.Status,
-	}
-
-	timestamp, err := time.Parse("2006-02-01 15:04:05 MST", p.CreatedAt)
-	if err != nil {
-		log.Println(err)
-	}
-
-	point, err := client.NewPoint(
-		"ping",
-		tags,
-		fields,
-		timestamp,
-	)
-
-	bp.AddPoint(point)
-	if err = connector.c.Write(bp); err != nil {
+	if err := connector.c.Write(bp); err != nil {
 		log.Println("Cannot add the datapoint to InfluxDB.")
 	}
 }

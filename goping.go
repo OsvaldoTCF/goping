@@ -26,12 +26,12 @@ func main() {
 
 // Handler of /api/1/pings POST requests to add new datapoints in the TSDB
 func PingAdd(w http.ResponseWriter, r *http.Request) {
-	ping, err := goping.NewPing(r)
+	pings, err := goping.ReadPings(r)
 	if err != nil {
 		log.Println(err)
 	}
 
-	tsdb.AddPing(ping)
+	tsdb.AddPings(pings)
 }
 
 // Handler of /api/1/pings/{origin}/hours GET requests to retrieve the everage
