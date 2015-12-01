@@ -14,7 +14,7 @@ type InfluxConnector struct {
 // Instantiates a new InfluxConnector
 func NewInfluxConnector() *InfluxConnector {
 	influxClient, err := client.NewHTTPClient(client.HTTPConfig{
-		Addr: "http://localhost:8056",
+		Addr: "http://localhost:8086",
 	})
 
 	if err != nil {
