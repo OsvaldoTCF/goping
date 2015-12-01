@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/aseure/goping/tsdb"
 	utils_json "github.com/aseure/goping/utils/json"
@@ -25,19 +26,29 @@ func main() {
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
 
-// Handler of /api/1/pings POST requests to add new datapoints in the TSDB
+// Handler of /api/1/pings POST requests to add new datapoints in the TSDB.
 func PingAdd(w http.ResponseWriter, r *http.Request) {
-	pings, err := goping.ReadPings(r)
+	pings, err := utils_json.ReadPings(r)
 	if err != nil {
 		log.Println(err)
 	}
 
-	tsdb.AddPings(pings)
+	connector.AddPings(pings)
 }
 
 // Handler of /api/1/pings/{origin}/hours GET requests to retrieve the everage
-// `transfer_time_ms` for a specific `origin`, aggregated by hours
+// `transfer_time_ms` for a specific `origin`, aggregated by hours.
 func PingGetAvgPerHour(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	origin := vars["origin"]
+
+	// Retrieve `origin`'s average transfer times per hour for the last 24
+	// hours
+	end := time.Now()
+	start := end.AddDate(0, 0, -1)
+	averages := connector.GetAveragePerHour(origin, start, end)
+
+	utils_json.WriteAverages(w, averages)
 }
 
 // Handler of / GET requests to display a chart of the `transfer_time_ms`

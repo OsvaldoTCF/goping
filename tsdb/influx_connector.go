@@ -73,9 +73,9 @@ func (connector *InfluxConnector) AddPings(pings []utils_json.Ping) {
 func (connector *InfluxConnector) GetAveragePerHour(
 	origin string,
 	start time.Time,
-	end time.Time) []int {
+	end time.Time) []utils_json.Average {
 
-	return make([]int, 1)
+	return make([]utils_json.Average, 10000)
 }
 
 // Query wrapper for InfluxDB commands.
