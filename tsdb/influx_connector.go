@@ -1,6 +1,8 @@
 package tsdb
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
 	"time"
 
@@ -70,12 +72,79 @@ func (connector *InfluxConnector) AddPings(pings []utils_json.Ping) {
 	}
 }
 
-func (connector *InfluxConnector) GetAveragePerHour(
+func (connector *InfluxConnector) GetAveragePerHour(origin string) []float64 {
+	start := connector.findOldestTimestamp(origin)
+	nbHours := int(time.Since(start).Hours())
+
+	return connector.getAverages(origin, start, time.Hour, nbHours)
+}
+
+// Generic method to retrieve any array of averages.
+// For instance, if we need to retrieve averages per hour of the last 24 hours,
+// the parameters must be set to:
+//
+//   - start: time.Now().AddDate(0, 0, -1)
+//   - step: time.Hour
+//   - count: 24
+//
+func (connector *InfluxConnector) getAverages(
 	origin string,
 	start time.Time,
-	end time.Time) []utils_json.Average {
+	step time.Duration,
+	count int) []float64 {
 
-	return make([]utils_json.Average, 10000)
+	averages := make([]float64, count)
+	end := start.Add(step)
+
+	for i := 0; i < count; i++ {
+		query := fmt.Sprintf(
+			"SELECT MEAN(transfer_time_ms) FROM ping WHERE origin = '%s' AND time > %d AND time < %d",
+			origin,
+			start.Unix()*1000000000,
+			end.Unix()*1000000000,
+		)
+
+		res, err := connector.query(query)
+		if err != nil {
+			log.Println("ERROR")
+		}
+
+		averages[i] = 0
+		if len(res[0].Series) != 0 {
+			if meanItf := res[0].Series[0].Values[0][1]; meanItf != nil {
+				if f, err := meanItf.(json.Number).Float64(); err == nil {
+					averages[i] = f
+				}
+			}
+		}
+
+		start = start.Add(step)
+		end = end.Add(step)
+	}
+
+	return averages
+}
+
+// Finds the oldest timestamp for the specified origin
+func (connector *InfluxConnector) findOldestTimestamp(origin string) time.Time {
+	query := fmt.Sprintf("SELECT origin FROM ping WHERE origin = '%s'",
+		origin,
+	)
+
+	res, err := connector.query(query)
+	if err != nil {
+		log.Println("ERROR")
+	}
+
+	if len(res[0].Series) != 0 {
+		if tItf := res[0].Series[0].Values[0][0]; tItf != nil {
+			if t, err := time.Parse(time.RFC3339, tItf.(string)); err == nil {
+				return t
+			}
+		}
+	}
+
+	return time.Now()
 }
 
 // Query wrapper for InfluxDB commands.
@@ -85,7 +154,7 @@ func (connector *InfluxConnector) query(cmd string) (res []client.Result, err er
 		Database: connector.database,
 	}
 
-	if response, err := connector.c.Query(q); err != nil {
+	if response, err := connector.c.Query(q); err == nil {
 		if response.Error() != nil {
 			return res, response.Error()
 		}

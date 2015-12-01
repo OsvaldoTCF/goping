@@ -6,12 +6,9 @@ import (
 	"net/http"
 )
 
-type Average struct {
-	Time  string `json:"t"`
-	Value int    `json:"a"`
-}
-
-func WriteAverages(w http.ResponseWriter, averages []Average) {
+// Write the averages array in the HTTP ResponseWriter. The response is
+// JSON-formatted.
+func WriteAverages(w http.ResponseWriter, averages []float64) {
 	js, err := json.Marshal(averages)
 
 	if err != nil {

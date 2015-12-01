@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/aseure/goping/tsdb"
 	utils_json "github.com/aseure/goping/utils/json"
@@ -41,12 +40,7 @@ func PingAdd(w http.ResponseWriter, r *http.Request) {
 func PingGetAvgPerHour(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	origin := vars["origin"]
-
-	// Retrieve `origin`'s average transfer times per hour for the last 24
-	// hours
-	end := time.Now()
-	start := end.AddDate(0, 0, -1)
-	averages := connector.GetAveragePerHour(origin, start, end)
+	averages := connector.GetAveragePerHour(origin)
 
 	utils_json.WriteAverages(w, averages)
 }
