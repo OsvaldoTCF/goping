@@ -94,14 +94,15 @@ func (connector *InfluxConnector) getAverages(
 	count int) []float64 {
 
 	averages := make([]float64, count)
-	end := start.Add(step)
+	startUnix := start.Unix() * 1000000000
+	stepUnix := int64(step.Seconds()) * 1000000000
 
 	for i := 0; i < count; i++ {
 		query := fmt.Sprintf(
 			"SELECT MEAN(transfer_time_ms) FROM ping WHERE origin = '%s' AND time > %d AND time < %d",
 			origin,
-			start.Unix()*1000000000,
-			end.Unix()*1000000000,
+			startUnix,
+			startUnix+stepUnix,
 		)
 
 		res, err := connector.query(query)
@@ -118,8 +119,7 @@ func (connector *InfluxConnector) getAverages(
 			}
 		}
 
-		start = start.Add(step)
-		end = end.Add(step)
+		startUnix = startUnix + stepUnix
 	}
 
 	return averages
