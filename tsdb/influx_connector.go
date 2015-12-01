@@ -1,9 +1,10 @@
-package goping
+package tsdb
 
 import (
 	"log"
 	"time"
 
+	utils_json "github.com/aseure/goping/utils/json"
 	"github.com/influxdb/influxdb/client/v2"
 )
 
@@ -29,7 +30,7 @@ func NewInfluxConnector() *InfluxConnector {
 	}
 }
 
-func (connector *InfluxConnector) AddPings(pings []Ping) {
+func (connector *InfluxConnector) AddPings(pings []utils_json.Ping) {
 	bp, _ := client.NewBatchPoints(client.BatchPointsConfig{
 		Database:  connector.database,
 		Precision: "s",

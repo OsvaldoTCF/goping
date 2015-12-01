@@ -4,15 +4,16 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/aseure/goping/goping"
+	"github.com/aseure/goping/tsdb"
+	utils_json "github.com/aseure/goping/utils/json"
 	"github.com/gorilla/mux"
 )
 
-var tsdb goping.TSDBConnector
+var connector tsdb.TSDBConnector
 
 func main() {
 	// Instantiates and configures the connection to the TSDB
-	tsdb = goping.NewInfluxConnector()
+	connector = tsdb.NewInfluxConnector()
 
 	// Instantiates and configures the HTTP router
 	router := mux.NewRouter().StrictSlash(true)
