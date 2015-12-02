@@ -9,4 +9,6 @@ type TSDBConnector interface {
 	// Retrieve a slice of the average transfer time of `origin` (in ms)
 	// aggregated by hours from the oldest timestamp until now.
 	GetAveragePerHour(origin string) []float64
+	// Retrieve a slice of string containing all origin values
+	GetOrigins() []string
 }

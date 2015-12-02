@@ -78,6 +78,26 @@ func (connector *InfluxConnector) GetAveragePerHour(origin string) []float64 {
 	return connector.getAverages(origin, start, time.Hour, nbHours)
 }
 
+func (connector *InfluxConnector) GetOrigins() (origins []string) {
+	query := "SHOW TAG VALUES WITH KEY = origin"
+
+	res, err := connector.query(query)
+	if err != nil {
+		log.Println("ERROR")
+	}
+
+	if len(res[0].Series) != 0 {
+		count := len(res[0].Series[0].Values)
+		origins = make([]string, count)
+
+		for i, originItf := range res[0].Series[0].Values {
+			origins[i] = originItf[0].(string)
+		}
+	}
+
+	return origins
+}
+
 // Generic method to retrieve any array of averages.
 // For instance, if we need to retrieve averages per hour of the last 24 hours,
 // the parameters must be set to:
