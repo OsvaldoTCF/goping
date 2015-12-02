@@ -33,6 +33,11 @@ h1 {
   width: 100px;
 }
 
+.dropdown-menu {
+  max-height: 400px;
+  overflow-y: scroll;
+}
+
 .canvas {
   background: white;
   border-radius: 0 0 5px 5px;
