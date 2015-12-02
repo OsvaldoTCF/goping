@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>GoPing Viewer</title>
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!--<link rel="stylesheet" href="css/bootstrap-theme.min.css">-->
+    <link rel="stylesheet" href="css/main.css">
+  </head>
+
+  <body>
+    <h1>GoPing Viewer</h1>
+
+    <div class="button-bar">
+      <div class="dropdown">
+        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+          Origin
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+          <li><a href="#">one</a></li>
+          <li><a href="#">two</a></li>
+          <li><a href="#">three</a></li>
+          <li><a href="#">four</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="canvas">
+      <canvas id="averages" width="150" height="100"></canvas>
+    </div>
+
+    <script src="js/jquery-2.1.4.min.js"></script>
+    <script src="js/Chart.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/averages.js"></script>
+  </body>
+</html>
