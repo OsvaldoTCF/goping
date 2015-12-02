@@ -8,8 +8,8 @@ import (
 
 // Write the averages array in the HTTP ResponseWriter. The response is
 // JSON-formatted.
-func WriteAverages(w http.ResponseWriter, averages []float64) {
-	js, err := json.Marshal(averages)
+func WriteAverages(w http.ResponseWriter, avgCollection *AvgCollection) {
+	js, err := json.Marshal(avgCollection)
 
 	if err != nil {
 		log.Println("Cannot marshalize aggregated averages.")

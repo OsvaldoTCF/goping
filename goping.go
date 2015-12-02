@@ -48,9 +48,9 @@ func HandlerAdd(w http.ResponseWriter, r *http.Request) {
 func HandlerGetAvgPerHour(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	origin := vars["origin"]
-	averages := connector.GetAveragePerHour(origin)
+	avgCollection := connector.GetAveragePerHour(origin)
 
-	utils_json.WriteAverages(w, averages)
+	utils_json.WriteAverages(w, avgCollection)
 }
 
 // Handler of / GET requests to display a chart of the `transfer_time_ms`

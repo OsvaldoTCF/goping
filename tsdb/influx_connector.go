@@ -71,11 +71,10 @@ func (connector *InfluxConnector) AddPings(pings []utils_json.Ping) {
 	}
 }
 
-func (connector *InfluxConnector) GetAveragePerHour(origin string) []float64 {
+func (connector *InfluxConnector) GetAveragePerHour(origin string) *utils_json.AvgCollection {
 	start := connector.findOldestTimestamp(origin)
-	nbHours := int(time.Since(start).Hours())
 
-	return connector.getAverages(origin, start, time.Hour, nbHours)
+	return connector.getAverages(origin, start, time.Hour, 24)
 }
 
 func (connector *InfluxConnector) GetOrigins() (origins []string) {
@@ -111,9 +110,9 @@ func (connector *InfluxConnector) getAverages(
 	origin string,
 	start time.Time,
 	step time.Duration,
-	count int) []float64 {
+	count int) *utils_json.AvgCollection {
 
-	averages := make([]float64, count)
+	avgCollection := utils_json.NewAvgCollection(start.String(), step, count)
 	startUnix := start.Unix() * 1000000000
 	stepUnix := int64(step.Seconds()) * 1000000000
 
@@ -130,11 +129,13 @@ func (connector *InfluxConnector) getAverages(
 			log.Println("Cannot query an average transfer time from InfluxDB.")
 		}
 
-		averages[i] = 0
+		avgCollection.Averages[i] = 0
+		avgCollection.Times[i] = start.String()
+
 		if len(res[0].Series) != 0 {
 			if meanItf := res[0].Series[0].Values[0][1]; meanItf != nil {
 				if f, err := meanItf.(json.Number).Float64(); err == nil {
-					averages[i] = f
+					avgCollection.Averages[i] = f
 				}
 			}
 		}
@@ -142,7 +143,7 @@ func (connector *InfluxConnector) getAverages(
 		startUnix = startUnix + stepUnix
 	}
 
-	return averages
+	return avgCollection
 }
 
 // Finds the oldest timestamp for the specified origin
