@@ -140,6 +140,7 @@ func (connector *InfluxConnector) getAverages(
 			}
 		}
 
+		start = start.Add(step)
 		startUnix = startUnix + stepUnix
 	}
 
