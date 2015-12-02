@@ -1,7 +1,12 @@
 Chart.defaults.global.responsive = true;
 
 var data = {
-  labels: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+  labels: [
+    "12:00AM", "01:00", "02:00", "03:00", "04:00", "05:00",
+      "06:00", "07:00", "08:00", "09:00", "10:00", "11:00",
+    "12:00PM", "01:00", "02:00", "03:00", "04:00", "05:00",
+      "06:00", "07:00", "08:00", "09:00", "10:00", "11:00"
+  ],
   datasets: [
     {
       label: "Week average transfer", 
@@ -11,12 +16,34 @@ var data = {
       pointStrokeColor: "#fff",
       pointHighlightFill: "#fff",
       pointHighlightStroke: "rgba(220,220,220,1)",
-      data: [17, 98, 83, 48, 10, 99, 67]
+      data: [
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+      ]
     }
   ]
 };
 
 $(window).load(function() {
+  // Initialization
   var ctx = $("#averages").get(0).getContext("2d");
-  var avgChart = new Chart(ctx).Line(data);
+  var chart = new Chart(ctx).Line(data);
+
+  $(".dropdown-menu li").click(function() {
+    var origin = $(this).text();
+    var url_api = "http://localhost:8080/api/1/pings/" + origin + "/hours";
+
+    $.get(url_api, function(avgCollection) {
+      data.datasets[0].data = [];
+      data.labels = [];
+
+      for (i = 0; i < avgCollection.averages.length; i++) {
+        data.datasets[0].data.push(avgCollection.averages[i]);
+        data.labels.push(avgCollection.times[i]);
+      }
+
+      chart.destroy();
+      ctx = $("#averages").get(0).getContext("2d");
+      chart = new Chart(ctx).Line(data);
+    });
+  });
 })
