@@ -42,6 +42,10 @@ nav > .btn-group {
   overflow-y: scroll;
 }
 
+#origin-btn {
+  width: 250px;
+}
+
 .canvas {
   background: white;
   border-radius: 0 0 5px 5px;

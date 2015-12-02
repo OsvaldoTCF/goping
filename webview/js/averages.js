@@ -32,6 +32,9 @@ $(window).load(function() {
     var origin = $(this).text();
     var url_api = "http://localhost:8080/api/1/pings/" + origin + "/hours";
 
+    // Change the `Origin` button text
+    $("#origin-text").text(origin)
+
     $.get(url_api, function(avgCollection) {
       data.datasets[0].data = [];
       data.labels = [];
