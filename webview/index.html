@@ -19,10 +19,9 @@
           <span class="caret"></span>
         </button>
         <ul class="dropdown-menu">
-          <li><a href="#">one</a></li>
-          <li><a href="#">two</a></li>
-          <li><a href="#">three</a></li>
-          <li><a href="#">four</a></li>
+          {{ range $i, $origin := . }}
+          <li><a href="#">{{ $origin }}</a></li>
+          {{ end }}
         </ul>
       </div>
     </div>
