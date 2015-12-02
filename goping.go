@@ -43,7 +43,7 @@ func HandlerAdd(w http.ResponseWriter, r *http.Request) {
 	connector.AddPings(pings)
 }
 
-// Handler of /api/1/pings/{origin}/hours GET requests to retrieve the everage
+// Handler of /api/1/pings/{origin}/hours GET requests to retrieve the average
 // `transfer_time_ms` for a specific `origin`, aggregated by hours.
 func HandlerGetAvgPerHour(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
