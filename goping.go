@@ -28,6 +28,7 @@ func main() {
 	// Static ressources
 	router.PathPrefix("/css/").Handler(http.StripPrefix("/css/", http.FileServer(http.Dir("webview/css/"))))
 	router.PathPrefix("/js/").Handler(http.StripPrefix("/js/", http.FileServer(http.Dir("webview/js/"))))
+	router.PathPrefix("/fonts/").Handler(http.StripPrefix("/fonts/", http.FileServer(http.Dir("webview/fonts/"))))
 
 	// Start the server
 	log.Fatal(http.ListenAndServe(":8080", router))
