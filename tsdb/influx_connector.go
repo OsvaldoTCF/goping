@@ -82,7 +82,7 @@ func (connector *InfluxConnector) GetAveragePerHour(origin string) *utils_json.A
 		0, 0, 0, 0, oldestTime.Location(),
 	)
 
-	return connector.getAverages(origin, start, time.Hour, 24)
+	return connector.GetAverages(origin, start, time.Hour, 24)
 }
 
 func (connector *InfluxConnector) GetOrigins() (origins []string) {
@@ -106,21 +106,13 @@ func (connector *InfluxConnector) GetOrigins() (origins []string) {
 	return origins
 }
 
-// Generic method to retrieve any array of averages.
-// For instance, if we need to retrieve averages per hour of the last 24 hours,
-// the parameters must be set to:
-//
-//   - start: time.Now().AddDate(0, 0, -1)
-//   - step: time.Hour
-//   - count: 24
-//
-func (connector *InfluxConnector) getAverages(
+func (connector *InfluxConnector) GetAverages(
 	origin string,
 	start time.Time,
 	step time.Duration,
 	count int) *utils_json.AvgCollection {
 
-	avgCollection := utils_json.NewAvgCollection(start.String(), step, count)
+	avgCollection := utils_json.NewAvgCollection(count)
 	startUnix := start.Unix() * 1000000000
 	stepUnix := int64(step.Seconds()) * 1000000000
 

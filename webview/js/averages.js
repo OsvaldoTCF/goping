@@ -23,13 +23,64 @@ var data = {
   ]
 };
 
+var origin = "";
+var time = "";
+
 $(window).load(function() {
   // Initialization
   var ctx = $("#averages").get(0).getContext("2d");
   var chart = new Chart(ctx).Line(data);
 
+  $("#previous-day-btn").click(function() {
+    var url_api = "http://localhost:8080/api/2/pings/" + origin + "/" + time + "/prev";
+
+    $.get(url_api, function(avgCollection) {
+      data.datasets[0].data = [];
+      data.labels = [];
+      if (avgCollection.times.length != 0) {
+        time = avgCollection.times[0];
+      }
+
+      for (i = 0; i < avgCollection.averages.length; i++) {
+        data.datasets[0].data.push(avgCollection.averages[i]);
+        data.labels.push(avgCollection.times[i]);
+      }
+
+      chart.destroy();
+      ctx = $("#averages").get(0).getContext("2d");
+      chart = new Chart(ctx).Line(data);
+    });
+  });
+
+  $("#next-day-btn").click(function() {
+    var url_api = "http://localhost:8080/api/2/pings/" + origin + "/" + time + "/next";
+
+    $.get(url_api, function(avgCollection) {
+      data.datasets[0].data = [];
+      data.labels = [];
+      if (avgCollection.times.length != 0) {
+        time = avgCollection.times[0];
+      }
+
+      for (i = 0; i < avgCollection.averages.length; i++) {
+        data.datasets[0].data.push(avgCollection.averages[i]);
+        data.labels.push(avgCollection.times[i]);
+      }
+
+      chart.destroy();
+      ctx = $("#averages").get(0).getContext("2d");
+      chart = new Chart(ctx).Line(data);
+    });
+  });
+
+  $("#oldest-btn").click(function() {
+  });
+
+  $("#now-btn").click(function() {
+  });
+
   $(".dropdown-menu li").click(function() {
-    var origin = $(this).text();
+    origin = $(this).text();
     var url_api = "http://localhost:8080/api/1/pings/" + origin + "/hours";
 
     // Change the `Origin` button text
@@ -38,6 +89,9 @@ $(window).load(function() {
     $.get(url_api, function(avgCollection) {
       data.datasets[0].data = [];
       data.labels = [];
+      if (avgCollection.times.length != 0) {
+        time = avgCollection.times[0];
+      }
 
       for (i = 0; i < avgCollection.averages.length; i++) {
         data.datasets[0].data.push(avgCollection.averages[i]);

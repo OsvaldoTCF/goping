@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/aseure/goping/tsdb"
 	utils_json "github.com/aseure/goping/utils/json"
@@ -22,8 +23,9 @@ func main() {
 
 	// API endpoints
 	router.HandleFunc("/api/1/pings", HandlerAdd).Methods("POST")
-	router.HandleFunc("/api/1/pings/{origin}/hours", HandlerGetAvgPerHour).Methods("GET")
+	router.HandleFunc("/api/1/pings/{origin}/hours", HandlerGetAvgPerHourV1).Methods("GET")
 	router.HandleFunc("/", HandlerChartWebPage).Methods("GET")
+	router.HandleFunc("/api/2/pings/{origin}/{time}/{way}", HandlerGetAvgPerHourV2).Methods("GET")
 
 	// Static ressources
 	router.PathPrefix("/css/").Handler(http.StripPrefix("/css/", http.FileServer(http.Dir("webview/css/"))))
@@ -46,10 +48,34 @@ func HandlerAdd(w http.ResponseWriter, r *http.Request) {
 
 // Handler of /api/1/pings/{origin}/hours GET requests to retrieve the average
 // `transfer_time_ms` for a specific `origin`, aggregated by hours.
-func HandlerGetAvgPerHour(w http.ResponseWriter, r *http.Request) {
+func HandlerGetAvgPerHourV1(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	origin := vars["origin"]
 	avgCollection := connector.GetAveragePerHour(origin)
+
+	utils_json.WriteAverages(w, avgCollection)
+}
+
+// Handler of /api/2/pings/{origin}/{time} GET requests to retrieve the average
+// `transfer_time_ms` for a specific `origin`, aggregated by hours. The first
+// date is {time + 1 day} if way is set to "next" or {time - 1 day} if way is
+// set to "prev".
+func HandlerGetAvgPerHourV2(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	origin := vars["origin"]
+	start, err := time.Parse("2006-01-02 15:04:05 +0000 UTC", vars["time"])
+	way := vars["way"]
+	avgCollection := utils_json.NewAvgCollection(0)
+
+	if err == nil {
+		if way == "prev" {
+			start = start.AddDate(0, 0, -1)
+			avgCollection = connector.GetAverages(origin, start, time.Hour, 24)
+		} else if way == "next" {
+			start = start.AddDate(0, 0, +1)
+			avgCollection = connector.GetAverages(origin, start, time.Hour, 24)
+		}
+	}
 
 	utils_json.WriteAverages(w, avgCollection)
 }

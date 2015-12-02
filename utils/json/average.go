@@ -1,7 +1,5 @@
 package utils_json
 
-import "time"
-
 // AvgCollection struct is the Go representation of a collection of averages
 // values and timestamps.
 type AvgCollection struct {
@@ -10,7 +8,7 @@ type AvgCollection struct {
 }
 
 // Instantiates a new AvgCollection.
-func NewAvgCollection(start string, step time.Duration, count int) *AvgCollection {
+func NewAvgCollection(count int) *AvgCollection {
 	return &AvgCollection{
 		Averages: make([]float64, count),
 		Times:    make([]string, count),
