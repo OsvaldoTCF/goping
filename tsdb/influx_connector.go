@@ -82,8 +82,9 @@ func (connector *InfluxConnector) GetOrigins() (origins []string) {
 	query := "SHOW TAG VALUES WITH KEY = origin"
 
 	res, err := connector.query(query)
-	if err != nil {
-		log.Println("ERROR")
+	if err != nil || len(res) == 0 {
+		log.Println("Cannot query origin values from InfluxDB.")
+		return origins
 	}
 
 	if len(res[0].Series) != 0 {
@@ -125,8 +126,8 @@ func (connector *InfluxConnector) getAverages(
 		)
 
 		res, err := connector.query(query)
-		if err != nil {
-			log.Println("ERROR")
+		if err != nil || len(res) == 0 {
+			log.Println("Cannot query an average transfer time from InfluxDB.")
 		}
 
 		averages[i] = 0
@@ -151,8 +152,9 @@ func (connector *InfluxConnector) findOldestTimestamp(origin string) time.Time {
 	)
 
 	res, err := connector.query(query)
-	if err != nil {
-		log.Println("ERROR")
+	if err != nil || len(res) == 0 {
+		log.Println("Cannot query InfluxDB.")
+		return time.Now()
 	}
 
 	if len(res[0].Series) != 0 {
