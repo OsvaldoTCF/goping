@@ -72,7 +72,15 @@ func (connector *InfluxConnector) AddPings(pings []utils_json.Ping) {
 }
 
 func (connector *InfluxConnector) GetAveragePerHour(origin string) *utils_json.AvgCollection {
-	start := connector.findOldestTimestamp(origin)
+	// Find the oldest timestamp for the specified origin
+	oldestTime := connector.findOldestTimestamp(origin)
+
+	// Generate the time object corresponding to the same day as the oldest
+	// timestamp but starting at 12AM
+	start := time.Date(
+		oldestTime.Year(), oldestTime.Month(), oldestTime.Day(),
+		0, 0, 0, 0, oldestTime.Location(),
+	)
 
 	return connector.getAverages(origin, start, time.Hour, 24)
 }

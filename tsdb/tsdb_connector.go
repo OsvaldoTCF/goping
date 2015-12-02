@@ -6,7 +6,8 @@ import utils_json "github.com/aseure/goping/utils/json"
 type TSDBConnector interface {
 	// Add new datapoints to the TSDB.
 	AddPings(pings []utils_json.Ping)
-	// Retrieve a slice of the average transfer time of `origin` (in ms).
+	// Retrieve a slice of the average transfer time of `origin` (in ms) for
+	// the first recorded 24 hours.
 	GetAveragePerHour(origin string) *utils_json.AvgCollection
 	// Retrieve a slice of string containing all origin values.
 	GetOrigins() []string
