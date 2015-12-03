@@ -1,5 +1,8 @@
 Chart.defaults.global.responsive = true;
 
+var origin = "";
+var time = "";
+
 var data = {
   labels: [
     "12:00AM", "01:00", "02:00", "03:00", "04:00", "05:00",
@@ -23,53 +26,75 @@ var data = {
   ]
 };
 
-var origin = "";
-var time = "";
-
-$(window).load(function() {
-  // Initialization
+function initEmptyChart() {
   var ctx = $("#averages").get(0).getContext("2d");
   var chart = new Chart(ctx).Line(data);
 
-  $("#previous-day-btn").click(function() {
-    var url_api = "http://localhost:8080/api/2/pings/" + origin + "/" + time + "/prev";
+  return chart;
+}
 
-    $.get(url_api, function(avgCollection) {
-      data.datasets[0].data = [];
-      data.labels = [];
+function updateChart(chart) {
+  chart.destroy();
+  ctx = $("#averages").get(0).getContext("2d");
+  chart = new Chart(ctx).Line(data);
+
+  return chart;
+}
+
+function clearData() {
+  data.datasets[0].data = [];
+}
+
+function updateOrigin(newOrigin) {
+    $("#origin-text").text(origin)
+}
+
+var weekday = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+var months = ["January", "February", "March", "April", "May", "June", "July",
+              "August", "September", "October", "November", "December"];
+
+function updateTime(newTime) {
+  time = newTime;
+  date = new Date(time);
+
+  $("#day").text(weekday[date.getDay()] + ", "
+      + months[date.getMonth()] + " " + date.getDate() + ", "
+      + date.getFullYear()
+  );
+}
+
+$(window).load(function() {
+  var chart = initEmptyChart();
+
+  $("#previous-day-btn").click(function() {
+    $.get("http://localhost:8080/api/2/pings/" + origin + "/" + time + "/prev", function(avgCollection) {
+      clearData();
+
       if (avgCollection.times.length != 0) {
-        time = avgCollection.times[0];
+        updateTime(avgCollection.times[0]);
       }
 
       for (i = 0; i < avgCollection.averages.length; i++) {
         data.datasets[0].data.push(avgCollection.averages[i]);
-        data.labels.push(avgCollection.times[i]);
       }
 
-      chart.destroy();
-      ctx = $("#averages").get(0).getContext("2d");
-      chart = new Chart(ctx).Line(data);
+      chart = updateChart(chart);
     });
   });
 
   $("#next-day-btn").click(function() {
-    var url_api = "http://localhost:8080/api/2/pings/" + origin + "/" + time + "/next";
+    $.get("http://localhost:8080/api/2/pings/" + origin + "/" + time + "/next", function(avgCollection) {
+      clearData();
 
-    $.get(url_api, function(avgCollection) {
-      data.datasets[0].data = [];
-      data.labels = [];
       if (avgCollection.times.length != 0) {
-        time = avgCollection.times[0];
+        updateTime(avgCollection.times[0]);
       }
 
       for (i = 0; i < avgCollection.averages.length; i++) {
         data.datasets[0].data.push(avgCollection.averages[i]);
-        data.labels.push(avgCollection.times[i]);
       }
 
-      chart.destroy();
-      ctx = $("#averages").get(0).getContext("2d");
-      chart = new Chart(ctx).Line(data);
+      chart = updateChart(chart);
     });
   });
 
@@ -81,26 +106,20 @@ $(window).load(function() {
 
   $(".dropdown-menu li").click(function() {
     origin = $(this).text();
-    var url_api = "http://localhost:8080/api/1/pings/" + origin + "/hours";
+    updateOrigin($(this).text());
 
-    // Change the `Origin` button text
-    $("#origin-text").text(origin)
+    $.get("http://localhost:8080/api/1/pings/" + origin + "/hours", function(avgCollection) {
+      clearData();
 
-    $.get(url_api, function(avgCollection) {
-      data.datasets[0].data = [];
-      data.labels = [];
       if (avgCollection.times.length != 0) {
-        time = avgCollection.times[0];
+        updateTime(avgCollection.times[0]);
       }
 
       for (i = 0; i < avgCollection.averages.length; i++) {
         data.datasets[0].data.push(avgCollection.averages[i]);
-        data.labels.push(avgCollection.times[i]);
       }
 
-      chart.destroy();
-      ctx = $("#averages").get(0).getContext("2d");
-      chart = new Chart(ctx).Line(data);
+      chart = updateChart(chart);
     });
   });
 })
