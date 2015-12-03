@@ -22,6 +22,8 @@ It only returns data from the first recorded day.
 
 ### GET /
 
+![Webview screenshot](./misc/screenshot.png)
+
 Renders transfer time averages of one day, aggregated by hours, using a line
 chart. From there, you can:
 
