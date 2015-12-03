@@ -3,6 +3,7 @@ GO=go
 all: install
 
 install:
+	${GO} get
 	${GO} install
 
 doc:
