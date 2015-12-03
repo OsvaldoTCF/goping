@@ -1,5 +1,4 @@
 GO=go
-GODOC=godoc
 
 all: install
 
