@@ -23,9 +23,10 @@ func main() {
 
 	// API endpoints
 	router.HandleFunc("/api/1/pings", HandlerAdd).Methods("POST")
-	router.HandleFunc("/api/1/pings/{origin}/hours", HandlerGetAvgPerHourV1).Methods("GET")
+	router.HandleFunc("/api/1/pings/{origin}/hours", HandlerGetAvgPerHour).Methods("GET")
 	router.HandleFunc("/", HandlerChartWebPage).Methods("GET")
-	router.HandleFunc("/api/2/pings/{origin}/{time}/{way}", HandlerGetAvgPerHourV2).Methods("GET")
+	router.HandleFunc("/api/2/pings/{origin}/{time}/{way}", HandlerGetAvgPerHourDayShift).Methods("GET")
+	router.HandleFunc("/api/2/pings/{origin}/now", HandlerGetAvgPerHourNow).Methods("GET")
 
 	// Static ressources
 	router.PathPrefix("/css/").Handler(http.StripPrefix("/css/", http.FileServer(http.Dir("webview/css/"))))
@@ -48,7 +49,7 @@ func HandlerAdd(w http.ResponseWriter, r *http.Request) {
 
 // Handler of /api/1/pings/{origin}/hours GET requests to retrieve the average
 // `transfer_time_ms` for a specific `origin`, aggregated by hours.
-func HandlerGetAvgPerHourV1(w http.ResponseWriter, r *http.Request) {
+func HandlerGetAvgPerHour(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	origin := vars["origin"]
 	avgCollection := connector.GetAveragePerHour(origin)
@@ -60,7 +61,7 @@ func HandlerGetAvgPerHourV1(w http.ResponseWriter, r *http.Request) {
 // `transfer_time_ms` for a specific `origin`, aggregated by hours. The first
 // date is {time + 1 day} if way is set to "next" or {time - 1 day} if way is
 // set to "prev".
-func HandlerGetAvgPerHourV2(w http.ResponseWriter, r *http.Request) {
+func HandlerGetAvgPerHourDayShift(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	origin := vars["origin"]
 	start, err := time.Parse("2006-01-02 15:04:05 +0000 UTC", vars["time"])
@@ -96,6 +97,17 @@ func HandlerChartWebPage(w http.ResponseWriter, r *http.Request) {
 		log.Println("Cannot render `webview/index.html`.")
 		writeInternalServerError(w)
 	}
+}
+
+// Handler of /api/2/pings/{origin}/now GET requests to retrieve the average
+// `transfer_time_ms` for a specific `origin`, aggregated by hours. Only the
+// current day is sent.
+func HandlerGetAvgPerHourNow(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	origin := vars["origin"]
+	avgCollection := connector.GetAveragePerHourNow(origin)
+
+	utils_json.WriteAverages(w, avgCollection)
 }
 
 // Write a 404 error on the ResponseWriter

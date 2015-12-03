@@ -12,8 +12,12 @@ type TSDBConnector interface {
 	AddPings(pings []utils_json.Ping)
 
 	// Retrieve a slice of the average transfer time of `origin` (in ms) for
-	// the first recorded 24 hours.
+	// the first recorded day.
 	GetAveragePerHour(origin string) *utils_json.AvgCollection
+
+	// Retrieve a slice of the average transfer time of `origin` (in ms) for
+	// the current day.
+	GetAveragePerHourNow(origin string) *utils_json.AvgCollection
 
 	// Generic method to retrieve any array of averages.
 	// For instance, if we need to retrieve averages per hour of the last 24

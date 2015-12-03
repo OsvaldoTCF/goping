@@ -33,7 +33,7 @@ function initEmptyChart() {
   return chart;
 }
 
-function updateChart(chart) {
+function redrawChart(chart) {
   chart.destroy();
   ctx = $("#averages").get(0).getContext("2d");
   chart = new Chart(ctx).Line(data);
@@ -63,45 +63,45 @@ function updateTime(newTime) {
   );
 }
 
+function updateChart(chart, avgCollection) {
+  clearData();
+
+  if (avgCollection.times.length != 0) {
+    updateTime(avgCollection.times[0]);
+  }
+
+  for (i = 0; i < avgCollection.averages.length; i++) {
+    data.datasets[0].data.push(avgCollection.averages[i]);
+  }
+
+  return redrawChart(chart);
+}
+
 $(window).load(function() {
   var chart = initEmptyChart();
 
   $("#previous-day-btn").click(function() {
     $.get("http://localhost:8080/api/2/pings/" + origin + "/" + time + "/prev", function(avgCollection) {
-      clearData();
-
-      if (avgCollection.times.length != 0) {
-        updateTime(avgCollection.times[0]);
-      }
-
-      for (i = 0; i < avgCollection.averages.length; i++) {
-        data.datasets[0].data.push(avgCollection.averages[i]);
-      }
-
-      chart = updateChart(chart);
+      chart = updateChart(chart, avgCollection);
     });
   });
 
   $("#next-day-btn").click(function() {
     $.get("http://localhost:8080/api/2/pings/" + origin + "/" + time + "/next", function(avgCollection) {
-      clearData();
-
-      if (avgCollection.times.length != 0) {
-        updateTime(avgCollection.times[0]);
-      }
-
-      for (i = 0; i < avgCollection.averages.length; i++) {
-        data.datasets[0].data.push(avgCollection.averages[i]);
-      }
-
-      chart = updateChart(chart);
+      chart = updateChart(chart, avgCollection);
     });
   });
 
   $("#oldest-btn").click(function() {
+    $.get("http://localhost:8080/api/1/pings/" + origin + "/hours", function(avgCollection) {
+      chart = updateChart(chart, avgCollection);
+    });
   });
 
   $("#now-btn").click(function() {
+    $.get("http://localhost:8080/api/2/pings/" + origin + "/now", function(avgCollection) {
+      chart = updateChart(chart, avgCollection);
+    });
   });
 
   $(".dropdown-menu li").click(function() {
@@ -109,17 +109,7 @@ $(window).load(function() {
     updateOrigin($(this).text());
 
     $.get("http://localhost:8080/api/1/pings/" + origin + "/hours", function(avgCollection) {
-      clearData();
-
-      if (avgCollection.times.length != 0) {
-        updateTime(avgCollection.times[0]);
-      }
-
-      for (i = 0; i < avgCollection.averages.length; i++) {
-        data.datasets[0].data.push(avgCollection.averages[i]);
-      }
-
-      chart = updateChart(chart);
+      chart = updateChart(chart, avgCollection);
     });
   });
 })

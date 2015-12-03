@@ -85,6 +85,16 @@ func (connector *InfluxConnector) GetAveragePerHour(origin string) *utils_json.A
 	return connector.GetAverages(origin, start, time.Hour, 24)
 }
 
+func (connector *InfluxConnector) GetAveragePerHourNow(origin string) *utils_json.AvgCollection {
+	// Generate the time object corresponding to last midnight.
+	start := time.Date(
+		time.Now().Year(), time.Now().Month(), time.Now().Day(),
+		0, 0, 0, 0, time.UTC,
+	)
+
+	return connector.GetAverages(origin, start, time.Hour, 24)
+}
+
 func (connector *InfluxConnector) GetOrigins() (origins []string) {
 	query := "SHOW TAG VALUES WITH KEY = origin"
 
